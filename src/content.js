@@ -1,5 +1,5 @@
 import { MESSAGE_TYPES } from './types';
-import { sendMessage } from './util';
+import { postMessage, sendMessage } from './util';
 
 // let isApply = false
 
@@ -214,11 +214,22 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  GET_VIDEOS_DATA: () => {
+  GET_VIDEOS_DATA: async (request, sender) => {
     // getdataPrueba()
     let dataImageVideos = getVideosPage();
-    // console.log(dataImageVideos)
-    sendMessage({ cmd: 'responseIMGS', data: dataImageVideos });
+    // console.log(dataImageVideos);
+    // sendResponse(dataImageVideos);
+    sendMessage({
+      ...request,
+      cmd: MESSAGE_TYPES.RESULT_VIDEOS_DATA,
+      data: dataImageVideos,
+    });
+    return {
+      status: 'ok',
+    };
+  },
+  RESULT_VIDEOS_DATA: async (request, sender) => {
+    postMessage(request);
     return {
       status: 'ok',
     };
@@ -277,36 +288,48 @@ const pageMessageHandlers = {
   CHECK_ELEMENT_VIDEO_SELECTED: (cmd, data) => {
     sendMessage({ cmd, data });
   },
+  [MESSAGE_TYPES.GET_TABS]: async (cmd, data) => {
+    const result = await sendMessage({ cmd, data });
+    if (!result) return;
+    postMessage(result);
+  },
+  [MESSAGE_TYPES.GET_VIDEOS_DATA]: async (cmd, data) => {
+    await sendMessage({ cmd, data });
+  },
 };
 
 window.addEventListener(
   'message',
-  function (event) {
+  async function (event) {
+    const msg = event.data;
     if (event.source != window) return;
-    let { cmd, data } = event.data;
+    if (msg._isExtMsg) return;
 
-    const handler = pageMessageHandlers[cmd];
+    // if (msg.type == 'REQUEST') {
+
+    let { cmd, data } = msg;
+
+    const handler = await pageMessageHandlers[cmd];
     if (handler) {
       handler(cmd, data);
     }
+    // }
     // console.log('todo ok')
   },
   false
 );
 
-chrome.runtime.onMessage.addListener(async function (
-  request,
-  sender,
-  sendResponse
-) {
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   let handle = messageHandlers[request.cmd];
 
   if (handle) {
-    try {
-      sendResponse(await handle(request, sender));
-    } catch (err) {
-      sendResponse({ err });
-    }
+    handle(request, sender)
+      .then((data) => {
+        sendResponse(data);
+      })
+      .catch((err) => {
+        sendResponse({ err });
+      });
 
     return true;
   }

@@ -1,5 +1,5 @@
 import { MESSAGE_TYPES } from './types';
-import { sendMessageTab } from './util';
+import { getTabs, getVideosData, sendMessageTab } from './util';
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('installed');
@@ -48,7 +48,7 @@ function comprobarData() {
 }
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  comprobarData().then(() => {
+  comprobarData().then(async () => {
     // console.log(request);
     // console.log(sender);
     if (request.cmd == 'updateDataG') {
@@ -103,6 +103,27 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       sendMessageTab(sender.tab.id, {
         cmd: MESSAGE_TYPES.RESULT_CHECK_ELEMENT_VIDEO_SELECTED,
         data: sendData,
+      });
+    } else if (request.cmd == MESSAGE_TYPES.GET_TABS) {
+      const tabs = await getTabs();
+
+      sendResponse({
+        ...request,
+        cmd: MESSAGE_TYPES.RESULT_TABS,
+        // type: 'RESPONSE',
+        data: tabs,
+      });
+    } else if (request.cmd == MESSAGE_TYPES.GET_VIDEOS_DATA) {
+      getVideosData(request.data.tabId, {
+        ...request,
+        myTabId: sender.tab.id,
+      });
+    } else if (request.cmd == MESSAGE_TYPES.RESULT_VIDEOS_DATA) {
+      sendMessageTab(request.myTabId, {
+        ...request,
+        cmd: MESSAGE_TYPES.RESULT_VIDEOS_DATA,
+        // type: 'RESPONSE',
+        data: request.data,
       });
     }
     sendResponse({ data: 'no se encontro coincidencia' });
