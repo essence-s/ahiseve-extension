@@ -1,0 +1,72 @@
+import { defineConfig } from 'rolldown';
+import copy from 'rollup-plugin-copy';
+import { minify } from 'rollup-plugin-esbuild';
+
+export default defineConfig([
+  {
+    input: {
+      popup: 'src/popup.js',
+      content: 'src/content.js',
+      background: 'src/background.js',
+    },
+    output: {
+      dir: 'dist/chrome',
+      format: 'esm',
+      entryFileNames: '[name].bundle.js',
+      globals: {},
+    },
+    plugins: [
+      copy({
+        targets: [
+          {
+            src: [
+              'public/*',
+              '!public/manifest.chrome.json',
+              '!public/manifest.firefox.json',
+            ],
+            dest: ['dist/chrome', 'dist/firefox'],
+          },
+          {
+            src: 'public/manifest.chrome.json',
+            dest: 'dist/chrome',
+            rename: 'manifest.json',
+          },
+          {
+            src: 'public/manifest.firefox.json',
+            dest: 'dist/firefox',
+            rename: 'manifest.json',
+          },
+        ],
+      }),
+      minify(),
+    ],
+  },
+
+  {
+    input: 'src/popup.js',
+    output: {
+      dir: 'dist/firefox',
+      format: 'iife',
+      entryFileNames: '[name].bundle.js',
+    },
+    plugins: [minify()],
+  },
+  {
+    input: 'src/content.js',
+    output: {
+      dir: 'dist/firefox',
+      format: 'iife',
+      entryFileNames: '[name].bundle.js',
+    },
+    plugins: [minify()],
+  },
+  {
+    input: 'src/background.js',
+    output: {
+      dir: 'dist/firefox',
+      format: 'iife',
+      entryFileNames: '[name].bundle.js',
+    },
+    plugins: [minify()],
+  },
+]);
