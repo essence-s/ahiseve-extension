@@ -12,7 +12,7 @@ export const sendMessage = (message) => {
 
 export const sendMessageTab = (tabId, message) => {
   return new Promise((resolve, reject) => {
-    chrome.tabs.sendMessage(parseInt(tabId), message, (response) => {
+    chrome.tabs.sendMessage(Number(tabId), message, (response) => {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError.message);
       } else {
