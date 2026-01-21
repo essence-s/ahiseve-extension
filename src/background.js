@@ -47,6 +47,12 @@ function comprobarData() {
   });
 }
 
+const storeDataGStorage = (data) => {
+  chrome.storage.local.set({ dataG: JSON.stringify(data) }, function () {
+    console.log('Datos almacenados en el localStorage del background:');
+  });
+};
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   comprobarData().then(async () => {
     // console.log(request);
@@ -83,7 +89,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           cmd: request.cmd,
           data: {
             ...request.data,
-            idNumber: dataG.imgNumber,
+            number: dataG.number,
           },
         });
       }
@@ -125,6 +131,39 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         // type: 'RESPONSE',
         data: request.data,
       });
+    } else if (request.cmd == MESSAGE_TYPES.ADD_EVENTS_ELEMENT) {
+      const tabId = request.data.tabId;
+      const number = request.data.number;
+      const img = request.data.img;
+      const favIconUrl = request.data.favIconUrl;
+
+      if (dataG.tabId) {
+        try {
+          const resultMessageTab = await sendMessageTab(parseInt(dataG.tabId), {
+            cmd: MESSAGE_TYPES.REMOVE_EVENTS_ELEMENTS,
+            data: { number: dataG.number },
+          });
+          if (resultMessageTab.status == 'ok') {
+            console.log('se removio eventos de seleccion anterior');
+          }
+        } catch (error) {
+          console.log('error remove', error);
+        }
+      }
+
+      await sendMessageTab(Number(tabId), {
+        cmd: MESSAGE_TYPES.ADD_EVENTS_ELEMENT,
+        data: { number },
+      });
+
+      dataG = {
+        img,
+        tabId,
+        number,
+        favIconUrl,
+      };
+
+      storeDataGStorage(dataG);
     }
     sendResponse({ data: 'no se encontro coincidencia' });
   });

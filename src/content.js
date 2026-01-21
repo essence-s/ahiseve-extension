@@ -156,11 +156,11 @@ function getVideosPage() {
 }
 
 const messageHandlers = {
-  ELEMENT_ACTION: (request) => {
+  ELEMENT_ACTION: async (request) => {
     if (request.data.status == 'received') {
       // console.log('recived ult 567', request)
       let foundElementVideo = foundVideos.find(
-        (d) => d.number == request.data.idNumber
+        (d) => d.number == request.data.number
       );
       if (foundElementVideo) {
         let mediaElement = foundElementVideo.element;
@@ -246,10 +246,10 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  ADD_EVENTS_ELEMENT: (request) => {
+  ADD_EVENTS_ELEMENT: async (request) => {
     // console.log('founVi', foundVideos)
     let foundElementVideo = foundVideos.find(
-      (d) => d.number == request.data.idNumber
+      (d) => d.number == request.data.number
     );
     if (foundElementVideo) {
       console.log('addEvents', request);
@@ -259,9 +259,9 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  REMOVE_EVENTS_ELEMENTS: (request) => {
+  REMOVE_EVENTS_ELEMENTS: async (request) => {
     let foundElementVideo = foundVideos.find(
-      (d) => d.number == request.data.idNumber
+      (d) => d.number == request.data.number
     );
     if (foundElementVideo) {
       console.log('Remove Events', request);
@@ -294,6 +294,9 @@ const pageMessageHandlers = {
     postMessage(result);
   },
   [MESSAGE_TYPES.GET_VIDEOS_DATA]: async (cmd, data) => {
+    await sendMessage({ cmd, data });
+  },
+  [MESSAGE_TYPES.ADD_EVENTS_ELEMENT]: async (cmd, data) => {
     await sendMessage({ cmd, data });
   },
 };
