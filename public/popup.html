@@ -1,182 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select Video Element</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ahiseve extension</title>
 
     <style>
-        *::-webkit-scrollbar {
-            width: 5px;
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        width: 240px;
+        height: 300px;
+        background: radial-gradient(#1b1b22 37%, #15151a 72%);
+        color: white;
+        font-family: sans-serif;
+      }
+
+      main {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        width: 200px;
+        height: 230px;
+        border-radius: 12px;
+        border: solid 1px #ffffff2a;
+        text-align: center;
+        margin: auto;
+        padding: 18px;
+      }
+      .loader {
+        width: 80px;
+        height: 80px;
+      }
+      .loader svg {
+        width: 100%;
+        height: 100%;
+        color: #b9b6c7;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          opacity: 100%;
+          transform: rotate(0deg);
         }
-
-        /* *::-webkit-scrollbar-track {
-            background: orange;
-        } */
-
-        *::-webkit-scrollbar-thumb {
-            background-color: rgb(223, 223, 223);
-            border-radius: 20px;
-            /* border: 1px solid orange; */
+        50% {
+          opacity: 50%;
+          transform: rotate(180deg);
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        100% {
+          opacity: 100%;
+          transform: rotate(360deg);
         }
-
-        body {
-            width: 240px;
-            height: 300px;
-            background: radial-gradient(#23232c 37%, #1c1c23 72%);
-            color: white;
-        }
-
-        main {
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            gap: 5px;
-        }
-
-        #dataSaveVideo {
-            border-radius: 10px;
-            border: 1px solid #39393e;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-            position: relative;
-            gap: 5px;
-            background: linear-gradient(91deg, #08080836 16%, #ffffff29);
-        }
-
-        #dataSaveVideo p {
-            text-align: center;
-            width: 100%;
-            /* font-size: 0.9em; */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-        }
-
-        .data-save-img-icon {
-            width: 17px;
-        }
-
-        .no-conect::after {
-            content: 'Vuelva a seleccionar \A posiblemente cerro la pestaña';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            /* padding: 15px; */
-            color: white;
-            background: #141414a6;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: 600;
-            backdrop-filter: blur(2px);
-            white-space: pre-wrap;
-            text-align: center;
-        }
-
-        #dataSaveVideo img {
-            flex: 1;
-        }
-
-        .description {
-            padding: 10px 0px 10px 26px;
-            border-radius: 5px;
-            margin-top: 10px;
-            border: 1px solid #ffffff42;
-            background: #0202028a;
-        }
-
-        .description a {
-            color: #4ea1e1;
-        }
-
-        #dataTabs {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            /* padding: 5px; */
-            overflow: auto;
-            height: 200px;
-        }
-
-        #dataTabs img {
-            width: 17px;
-            height: 17px;
-        }
-
-        .tab-title {
-            padding: 8px;
-            border-radius: 5px;
-            background: #19191a63;
-            border: 1px solid #ffffff09;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            word-break: break-all;
-        }
-
-
-        #dataVideos {
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-        }
-
-        .img-option {
-            width: 100px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-
-        .btn-style {
-            border: 1px solid #ffffff05;
-            border: 3px solid #ffffff1a;
-            border-radius: 5px;
-            background: #e8e8e80d;
-            color: white;
-            padding: 20px 55px;
-            /* margin: 0 auto; */
-            cursor: pointer;
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <main>
-        <div id="dataSaveVideo">
-            <p>
-                Video no Seleccionado
-            </p>
-        </div>
-
-        <div class="description">
-            <ul>
-                <li><a href="https://ahiseve.vercel.app/" target="_blank">Cree una sala en esta pagina</a></li>
-                <li><span>Seleccione la pestaña y se mostraran los video disponibles</span></li>
-
-            </ul>
-        </div>
-
-        <div id="dataTabs"></div>
-        <div id="dataVideos"></div>
+      <div id="info">
+        <p>Video no Seleccionado</p>
+      </div>
     </main>
 
-    <script src="./popup.bundle.js"></script>
-
-</body>
-
+    <script src="./popup.js"></script>
+  </body>
 </html>
