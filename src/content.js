@@ -146,13 +146,18 @@ function getVideosPage() {
       number: generarID(),
       img: previewImage,
       element: videoun,
+      duration: videoun.duration,
     };
   });
 
   foundVideos = arrayvideos;
   // console.log(arrayvideos)
-
-  return arrayvideos.map((v) => ({ number: v.number, img: v.img }));
+  // lo que realmente envio a ahiseve
+  return arrayvideos.map((v) => ({
+    number: v.number,
+    img: v.img,
+    duration: v.duration,
+  }));
 }
 
 const messageHandlers = {
