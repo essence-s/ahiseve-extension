@@ -6,13 +6,13 @@ export default defineConfig([
   {
     input: {
       popup: 'src/popup.js',
-      content: 'src/content.js',
+      // content: 'src/content.js',
       background: 'src/background.js',
     },
     output: {
       dir: 'dist/chrome',
-      format: 'esm',
-      entryFileNames: '[name].bundle.js',
+      format: 'es',
+      entryFileNames: '[name].js',
       globals: {},
     },
     plugins: [
@@ -47,17 +47,40 @@ export default defineConfig([
     output: {
       dir: 'dist/firefox',
       format: 'iife',
-      entryFileNames: '[name].bundle.js',
+      entryFileNames: '[name].js',
     },
     plugins: [minify()],
   },
   {
     input: 'src/content.js',
-    output: {
-      dir: 'dist/firefox',
-      format: 'iife',
-      entryFileNames: '[name].bundle.js',
-    },
+    output: [
+      {
+        dir: 'dist/firefox',
+        format: 'iife',
+        entryFileNames: '[name].js',
+      },
+      {
+        dir: 'dist/chrome',
+        format: 'iife',
+        entryFileNames: '[name].js',
+      },
+    ],
+    plugins: [minify()],
+  },
+  {
+    input: 'src/app-content.js',
+    output: [
+      {
+        dir: 'dist/firefox',
+        format: 'iife',
+        entryFileNames: '[name].js',
+      },
+      {
+        dir: 'dist/chrome',
+        format: 'iife',
+        entryFileNames: '[name].js',
+      },
+    ],
     plugins: [minify()],
   },
   {
@@ -65,7 +88,7 @@ export default defineConfig([
     output: {
       dir: 'dist/firefox',
       format: 'iife',
-      entryFileNames: '[name].bundle.js',
+      entryFileNames: '[name].js',
     },
     plugins: [minify()],
   },
