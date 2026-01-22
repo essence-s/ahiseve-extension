@@ -1,17 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "Media Spotter S",
+  "name": "Ahiseve",
   "version": "0.0.1",
   "action": {
     "default_popup": "popup.html"
   },
   "background": {
-    "service_worker": "background.bundle.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
       "run_at": "document_idle",
-      "js": ["content.bundle.js"],
+      "js": ["app-content.js"],
       "matches": ["https://ahiseve.vercel.app/*"]
     }
   ],
