@@ -99,7 +99,7 @@ export const getVideosData = (tabId, msg) => {
               tabId: parseInt(tabId),
               allFrames: true,
             },
-            files: ['content.bundle.js'],
+            files: ['content.js'],
           })
           .then(() => {
             console.log('script injected in all jaus');

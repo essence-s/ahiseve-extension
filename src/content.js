@@ -1,5 +1,5 @@
 import { MESSAGE_TYPES } from './types';
-import { postMessage, sendMessage } from './util';
+import { sendMessage } from './util';
 
 // let isApply = false
 
@@ -204,17 +204,8 @@ const messageHandlers = {
           });
         }
       }
-    } else if (request.data.status == 'sending') {
-      window.postMessage(
-        {
-          cmd: request.cmd,
-          data: request.data,
-        },
-        '*'
-      );
     }
 
-    // sendResponse('ok')
     return {
       status: 'ok',
     };
@@ -229,24 +220,6 @@ const messageHandlers = {
       cmd: MESSAGE_TYPES.RESULT_VIDEOS_DATA,
       data: dataImageVideos,
     });
-    return {
-      status: 'ok',
-    };
-  },
-  RESULT_VIDEOS_DATA: async (request, sender) => {
-    postMessage(request);
-    return {
-      status: 'ok',
-    };
-  },
-  RESULT_CHECK_ELEMENT_VIDEO_SELECTED: (request) => {
-    window.postMessage(
-      {
-        cmd: MESSAGE_TYPES.RESULT_CHECK_ELEMENT_VIDEO_SELECTED,
-        data: request.data,
-      },
-      '*'
-    );
     return {
       status: 'ok',
     };
@@ -281,52 +254,6 @@ const messageHandlers = {
   },
 };
 
-const pageMessageHandlers = {
-  ELEMENT_ACTION: (cmd, data) => {
-    // console.log('elemt action ', cmd, data)
-    if (data.status == 'received') {
-      sendMessage({ cmd, data }).catch((e) => {
-        console.log(e);
-      });
-    }
-  },
-  CHECK_ELEMENT_VIDEO_SELECTED: (cmd, data) => {
-    sendMessage({ cmd, data });
-  },
-  [MESSAGE_TYPES.GET_TABS]: async (cmd, data) => {
-    const result = await sendMessage({ cmd, data });
-    if (!result) return;
-    postMessage(result);
-  },
-  [MESSAGE_TYPES.GET_VIDEOS_DATA]: async (cmd, data) => {
-    await sendMessage({ cmd, data });
-  },
-  [MESSAGE_TYPES.ADD_EVENTS_ELEMENT]: async (cmd, data) => {
-    await sendMessage({ cmd, data });
-  },
-};
-
-window.addEventListener(
-  'message',
-  async function (event) {
-    const msg = event.data;
-    if (event.source != window) return;
-    if (msg._isExtMsg) return;
-
-    // if (msg.type == 'REQUEST') {
-
-    let { cmd, data } = msg;
-
-    const handler = await pageMessageHandlers[cmd];
-    if (handler) {
-      handler(cmd, data);
-    }
-    // }
-    // console.log('todo ok')
-  },
-  false
-);
-
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   let handle = messageHandlers[request.cmd];
 
@@ -344,8 +271,4 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   sendResponse({ error: 'no existe tal accion' });
 });
 
-// chrome.runtime.sendMessage({ data: "Mensaje desde la página" }, (response) => {
-//     console.log(response);
-// });
-
-console.log('media-element-selection-extension');
+console.log('ahiseve page');
