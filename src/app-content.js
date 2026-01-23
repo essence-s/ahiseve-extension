@@ -42,7 +42,7 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  RESULT_CHECK_ELEMENT_VIDEO_SELECTED: (request) => {
+  RESULT_CHECK_ELEMENT_VIDEO_SELECTED: async (request) => {
     postMessage({
       cmd: MESSAGE_TYPES.RESULT_CHECK_ELEMENT_VIDEO_SELECTED,
       data: request.data,
@@ -51,7 +51,7 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  CHECK_CONNECTION: () => {
+  CHECK_CONNECTION: async () => {
     return { message: 'connected' };
   },
 };
