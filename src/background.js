@@ -48,17 +48,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       // console.log('element-action', request)
       if (request.data.status == 'sending') {
         // enviar al pagina principal
-        chrome.tabs.query(
-          { url: ['https://ahiseve.vercel.app/*', 'http://localhost:4321/*'] },
-          (tabs) => {
-            tabs.forEach((tab) => {
-              sendMessageTab(tab.id, {
-                cmd: request.cmd,
-                data: request.data,
-              });
-            });
-          }
-        );
+        sendMessageTab(mainAppTabId, {
+          cmd: request.cmd,
+          data: request.data,
+        });
       } else {
         // console.log(dataG)
         // enviar a la pagina y videoElement Selecionado
