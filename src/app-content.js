@@ -10,7 +10,7 @@ chrome.runtime.sendMessage({
 const messageHandlers = {
   [MESSAGE_TYPES.APP_INSTANCE_NOW_PRIMARY]: async () => {
     console.log(
-      'Ahiseve extension: ',
+      'Ahiseve extension:',
       'ahora la pestaña Ahiseve esta conectado a la extension'
     );
     console.log(
@@ -20,7 +20,7 @@ const messageHandlers = {
   },
   [MESSAGE_TYPES.APP_INSTANCE_LOST_PRIMARY]: async () => {
     console.log(
-      'Ahiseve extension: ',
+      'Ahiseve extension:',
       'esta pestaña dejo de ser la principal y se desconecto de la extension'
     );
     return { status: 'ok' };
