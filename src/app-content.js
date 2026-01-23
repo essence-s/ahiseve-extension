@@ -1,7 +1,30 @@
 import { MESSAGE_TYPES } from './types';
 import { postMessage, sendMessage } from './util';
 
+// envia una señal de instancia de la web
+chrome.runtime.sendMessage({
+  cmd: MESSAGE_TYPES.APP_INSTANCE_ALIVE,
+  tabId: chrome.runtime.id,
+});
+
 const messageHandlers = {
+  [MESSAGE_TYPES.APP_INSTANCE_NOW_PRIMARY]: async () => {
+    console.log(
+      'Ahiseve extension: ',
+      'ahora la pestaña Ahiseve esta conectado a la extension'
+    );
+    console.log(
+      'la extension solo puede conectarse con una pestaña de Ahiseve'
+    );
+    return { status: 'ok' };
+  },
+  [MESSAGE_TYPES.APP_INSTANCE_LOST_PRIMARY]: async () => {
+    console.log(
+      'Ahiseve extension: ',
+      'esta pestaña dejo de ser la principal y se desconecto de la extension'
+    );
+    return { status: 'ok' };
+  },
   ELEMENT_ACTION: async (request) => {
     if (request.data.status == 'sending') {
       postMessage({

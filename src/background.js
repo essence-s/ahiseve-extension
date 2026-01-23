@@ -4,31 +4,8 @@ import { getTabs, getVideosData, sendMessageTab } from './util';
 chrome.runtime.onInstalled.addListener(() => {
   console.log('installed');
 });
-// improve
-chrome.tabs.query(
-  { url: ['https://ahiseve.vercel.app/*', 'http://localhost:4321/*'] },
-  (tabs) => {
-    tabs.forEach((tab) => {
-      sendMessageTab(tab.id, { cmd: MESSAGE_TYPES.CHECK_CONNECTION })
-        .then((response) => {
-          if (response.message == 'connected') {
-            console.log(response, 'ya esta conectado');
-          }
-        })
-        .catch((err) => {
-          chrome.scripting
-            .executeScript({
-              target: { tabId: parseInt(tab.id) },
-              files: ['content.bundle.js'],
-            })
-            .then(() => {
-              console.log('script injected');
-            });
-        });
-    });
-  }
-);
 
+let mainAppTabId = null;
 let dataG = {};
 
 function comprobarData() {
@@ -164,6 +141,24 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       };
 
       storeDataGStorage(dataG);
+    } else if (request.cmd === MESSAGE_TYPES.APP_INSTANCE_ALIVE) {
+      const newTabId = sender.tab?.id;
+      if (newTabId !== undefined) {
+        // avisa a la anterior que ya no es principal
+        if (mainAppTabId !== null && mainAppTabId !== newTabId) {
+          sendMessageTab(mainAppTabId, {
+            cmd: MESSAGE_TYPES.APP_INSTANCE_LOST_PRIMARY,
+          }).catch(() => {});
+        }
+
+        // actualiza principal
+        mainAppTabId = newTabId;
+
+        // avisar la nueva principal
+        sendMessageTab(mainAppTabId, {
+          cmd: MESSAGE_TYPES.APP_INSTANCE_NOW_PRIMARY,
+        }).catch(() => {});
+      }
     }
     sendResponse({ data: 'no se encontro coincidencia' });
   });
