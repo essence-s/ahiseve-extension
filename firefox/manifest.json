@@ -1,34 +1,28 @@
 {
   "manifest_version": 2,
-  "name": "ahiseve",
+  "name": "Ahiseve",
   "version": "0.0.1",
-
   "browser_action": {
     "default_popup": "popup.html"
   },
-
   "background": {
-    "scripts": ["background.bundle.js"],
+    "scripts": ["background.js"],
     "persistent": true
   },
-
   "content_scripts": [
     {
       "run_at": "document_idle",
-      "js": ["content.bundle.js"],
+      "js": ["app-content.js"],
       "matches": ["https://ahiseve.vercel.app/*"]
     }
   ],
-
   "icons": {
     "128": "icon128.png"
   },
-
   "permissions": ["scripting", "tabs", "storage", "<all_urls>"],
-
   "browser_specific_settings": {
     "gecko": {
-      "id": "extencion-a@ejemplo.com",
+      "id": "ahiseve@essence-s",
       "strict_min_version": "91.0"
     }
   }
