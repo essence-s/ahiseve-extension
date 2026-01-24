@@ -16,6 +16,9 @@ const messageHandlers = {
     console.log(
       'la extension solo puede conectarse con una pestaña de Ahiseve'
     );
+    postMessage({
+      cmd: MESSAGE_TYPES.APP_INSTANCE_NOW_PRIMARY,
+    });
     return { status: 'ok' };
   },
   [MESSAGE_TYPES.APP_INSTANCE_LOST_PRIMARY]: async () => {
@@ -23,6 +26,7 @@ const messageHandlers = {
       'Ahiseve extension:',
       'esta pestaña dejo de ser la principal y se desconecto de la extension'
     );
+    postMessage({ cmd: MESSAGE_TYPES.APP_INSTANCE_LOST_PRIMARY });
     return { status: 'ok' };
   },
   [MESSAGE_TYPES.ELEMENT_ACTION]: async (request) => {
