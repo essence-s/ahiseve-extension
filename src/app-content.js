@@ -48,7 +48,7 @@ const messageHandlers = {
 };
 
 const pageMessageHandlers = {
-  [MESSAGE_TYPES.ELEMENT_ACTION]: (cmd, data) => {
+  [MESSAGE_TYPES.ELEMENT_ACTION]: async (cmd, data) => {
     if (data.status == 'received') {
       sendMessage({ cmd, data }).catch((e) => {
         console.log(e);
