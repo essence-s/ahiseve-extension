@@ -2,7 +2,7 @@ import { MESSAGE_TYPES } from './types';
 import { postMessage, sendMessage } from './util';
 
 // envia una señal de instancia de la web
-chrome.runtime.sendMessage({
+sendMessage({
   cmd: MESSAGE_TYPES.APP_INSTANCE_ALIVE,
   tabId: chrome.runtime.id,
 });
