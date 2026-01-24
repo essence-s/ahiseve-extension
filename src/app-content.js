@@ -42,15 +42,6 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  RESULT_CHECK_ELEMENT_VIDEO_SELECTED: async (request) => {
-    postMessage({
-      cmd: MESSAGE_TYPES.RESULT_CHECK_ELEMENT_VIDEO_SELECTED,
-      data: request.data,
-    });
-    return {
-      status: 'ok',
-    };
-  },
   CHECK_CONNECTION: async () => {
     return { message: 'connected' };
   },
@@ -64,8 +55,10 @@ const pageMessageHandlers = {
       });
     }
   },
-  CHECK_ELEMENT_VIDEO_SELECTED: (cmd, data) => {
-    sendMessage({ cmd, data });
+  [MESSAGE_TYPES.CHECK_ELEMENT_VIDEO_SELECTED]: async (cmd, data) => {
+    const result = await sendMessage({ cmd, data });
+    if (!result) return;
+    postMessage(result);
   },
   [MESSAGE_TYPES.GET_TABS]: async (cmd, data) => {
     const result = await sendMessage({ cmd, data });

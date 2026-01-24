@@ -54,19 +54,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         });
       }
     } else if (request.cmd == MESSAGE_TYPES.CHECK_ELEMENT_VIDEO_SELECTED) {
-      // console.log('check', request)
-      let sendData = {
-        selected: false,
-      };
+      let sendData = { selected: false };
 
-      if (Object.keys(dataG).length != 0) {
-        sendData = {
-          selected: true,
-        };
-        // console.log('dataG', dataG)
-      }
-      // console.log('dataG vacio', dataG)
-      sendMessageTab(sender.tab.id, {
+      if (Object.keys(dataG).length != 0) sendData = { selected: true };
+
+      sendResponse({
         cmd: MESSAGE_TYPES.RESULT_CHECK_ELEMENT_VIDEO_SELECTED,
         data: sendData,
       });
