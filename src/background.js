@@ -34,17 +34,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   comprobarData().then(async () => {
     // console.log(request);
     // console.log(sender);
-    if (request.cmd == 'updateDataG') {
-      // console.log('si se pudo chavito')
-      dataG = request.data;
-
-      chrome.storage.local.set(
-        { dataG: JSON.stringify(request.data) },
-        function () {
-          console.log('Datos almacenados en el localStorage del background:');
-        }
-      );
-    } else if (request.cmd == MESSAGE_TYPES.ELEMENT_ACTION) {
+    if (request.cmd == MESSAGE_TYPES.ELEMENT_ACTION) {
       // console.log('element-action', request)
       if (request.data.status == 'sending') {
         // enviar al pagina principal
