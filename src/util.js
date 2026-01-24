@@ -93,27 +93,28 @@ export const getVideosData = (tabId, msg) => {
       })
       .catch((error) => {
         console.log('Error al enviar mensaje:', error);
-        browser.scripting
-          .executeScript({
-            target: {
-              tabId: parseInt(tabId),
-              allFrames: true,
-            },
-            files: ['content.js'],
-          })
-          .then(() => {
-            console.log('script injected in all jaus');
+        const sx =
+          typeof browser !== 'undefined' ? browser.scripting : chrome.scripting;
 
-            sendMessageTab(parseInt(tabId), msg)
-              .then((response) => {
-                console.log('Mensaje enviado:', response);
-                resolve(response);
-              })
-              .catch((err) => {
-                console.log('Error al enviar mensaje 2:', err);
-                reject(err);
-              });
-          });
+        sx.executeScript({
+          target: {
+            tabId: parseInt(tabId),
+            allFrames: true,
+          },
+          files: ['content.js'],
+        }).then(() => {
+          console.log('script execute');
+
+          sendMessageTab(parseInt(tabId), msg)
+            .then((response) => {
+              console.log('Mensaje enviado:', response);
+              resolve(response);
+            })
+            .catch((err) => {
+              console.log('Error al enviar mensaje 2:', err);
+              reject(err);
+            });
+        });
       });
   });
 };
