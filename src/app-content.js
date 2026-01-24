@@ -25,7 +25,7 @@ const messageHandlers = {
     );
     return { status: 'ok' };
   },
-  ELEMENT_ACTION: async (request) => {
+  [MESSAGE_TYPES.ELEMENT_ACTION]: async (request) => {
     if (request.data.status == 'sending') {
       postMessage({
         cmd: request.cmd,
@@ -36,19 +36,19 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  RESULT_VIDEOS_DATA: async (request) => {
+  [MESSAGE_TYPES.RESULT_VIDEOS_DATA]: async (request) => {
     postMessage(request);
     return {
       status: 'ok',
     };
   },
-  CHECK_CONNECTION: async () => {
+  [MESSAGE_TYPES.CHECK_CONNECTION]: async () => {
     return { message: 'connected' };
   },
 };
 
 const pageMessageHandlers = {
-  ELEMENT_ACTION: (cmd, data) => {
+  [MESSAGE_TYPES.ELEMENT_ACTION]: (cmd, data) => {
     if (data.status == 'received') {
       sendMessage({ cmd, data }).catch((e) => {
         console.log(e);

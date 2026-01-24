@@ -161,7 +161,7 @@ function getVideosPage() {
 }
 
 const messageHandlers = {
-  ELEMENT_ACTION: async (request) => {
+  [MESSAGE_TYPES.ELEMENT_ACTION]: async (request) => {
     if (request.data.status == 'received') {
       // console.log('recived ult 567', request)
       let foundElementVideo = foundVideos.find(
@@ -210,7 +210,7 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  GET_VIDEOS_DATA: async (request, sender) => {
+  [MESSAGE_TYPES.GET_VIDEOS_DATA]: async (request, sender) => {
     // getdataPrueba()
     let dataImageVideos = getVideosPage();
     // console.log(dataImageVideos);
@@ -224,7 +224,7 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  ADD_EVENTS_ELEMENT: async (request) => {
+  [MESSAGE_TYPES.ADD_EVENTS_ELEMENT]: async (request) => {
     // console.log('founVi', foundVideos)
     let foundElementVideo = foundVideos.find(
       (d) => d.number == request.data.number
@@ -237,7 +237,7 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  REMOVE_EVENTS_ELEMENTS: async (request) => {
+  [MESSAGE_TYPES.REMOVE_EVENTS_ELEMENTS]: async (request) => {
     let foundElementVideo = foundVideos.find(
       (d) => d.number == request.data.number
     );
@@ -249,7 +249,7 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  CHECK_CONNECTION: () => {
+  [MESSAGE_TYPES.CHECK_CONNECTION]: () => {
     return { message: 'connected' };
   },
 };
