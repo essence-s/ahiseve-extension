@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/chrome": "^0.1.36",
     "esbuild": "^0.27.2",
     "rolldown": "1.0.0-rc.1",
     "rollup-plugin-copy": "^3.5.0",

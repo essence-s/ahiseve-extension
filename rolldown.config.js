@@ -5,9 +5,9 @@ import { minify } from 'rollup-plugin-esbuild';
 export default defineConfig([
   {
     input: {
-      popup: 'src/popup.js',
-      // content: 'src/content.js',
-      background: 'src/background.js',
+      popup: 'src/popup.ts',
+      // content: 'src/content.ts',
+      background: 'src/background.ts',
     },
     output: {
       dir: 'dist/chrome',
@@ -43,7 +43,7 @@ export default defineConfig([
   },
 
   {
-    input: 'src/popup.js',
+    input: 'src/popup.ts',
     output: {
       dir: 'dist/firefox',
       format: 'iife',
@@ -52,7 +52,7 @@ export default defineConfig([
     plugins: [minify()],
   },
   {
-    input: 'src/content.js',
+    input: 'src/content.ts',
     output: [
       {
         dir: 'dist/firefox',
@@ -68,7 +68,7 @@ export default defineConfig([
     plugins: [minify()],
   },
   {
-    input: 'src/app-content.js',
+    input: 'src/app-content.ts',
     output: [
       {
         dir: 'dist/firefox',
@@ -84,7 +84,7 @@ export default defineConfig([
     plugins: [minify()],
   },
   {
-    input: 'src/background.js',
+    input: 'src/background.ts',
     output: {
       dir: 'dist/firefox',
       format: 'iife',

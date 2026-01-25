@@ -1,4 +1,6 @@
-export const sendMessage = (message) => {
+declare const browser: any;
+
+export const sendMessage = (message: any) => {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(message, (response) => {
       if (chrome.runtime.lastError) {
@@ -10,7 +12,7 @@ export const sendMessage = (message) => {
   });
 };
 
-export const sendMessageTab = (tabId, message) => {
+export const sendMessageTab = (tabId: number, message: any) => {
   return new Promise((resolve, reject) => {
     chrome.tabs.sendMessage(Number(tabId), message, (response) => {
       if (chrome.runtime.lastError) {
@@ -22,7 +24,7 @@ export const sendMessageTab = (tabId, message) => {
   });
 };
 
-export const postMessage = (request) => {
+export const postMessage = (request: any) => {
   window.postMessage(
     // {
     //   _isExtMsg: true,
@@ -33,9 +35,9 @@ export const postMessage = (request) => {
   );
 };
 
-const iconCache = {};
+const iconCache: any = {};
 
-const getIconDataUrl = async (favIconUrl) => {
+const getIconDataUrl = async (favIconUrl: string | undefined) => {
   if (!favIconUrl) return '';
 
   if (iconCache[favIconUrl]) {
@@ -83,29 +85,30 @@ export const getTabs = () => {
   });
 };
 
-export const getVideosData = (tabId, msg) => {
+export const getVideosData = (tabId: number, msg: any) => {
   //   console.log(tabId, 'tabid');
   return new Promise((resolve, reject) => {
-    sendMessageTab(parseInt(tabId), msg)
+    sendMessageTab(tabId, msg)
       .then((response) => {
         console.log('Mensaje enviado:', response);
         resolve(response);
       })
       .catch((error) => {
         console.log('Error al enviar mensaje:', error);
+
         const sx =
           typeof browser !== 'undefined' ? browser.scripting : chrome.scripting;
 
         sx.executeScript({
           target: {
-            tabId: parseInt(tabId),
+            tabId: Number(tabId),
             allFrames: true,
           },
           files: ['content.js'],
         }).then(() => {
           console.log('script execute');
 
-          sendMessageTab(parseInt(tabId), msg)
+          sendMessageTab(tabId, msg)
             .then((response) => {
               console.log('Mensaje enviado:', response);
               resolve(response);

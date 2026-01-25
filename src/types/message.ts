@@ -13,3 +13,10 @@ export const MESSAGE_TYPES = {
   APP_INSTANCE_LOST_PRIMARY: 'APP_INSTANCE_LOST_PRIMARY',
   APP_INSTANCE_NOW_PRIMARY: 'APP_INSTANCE_NOW_PRIMARY',
 };
+
+export type MessageType = (typeof MESSAGE_TYPES)[keyof typeof MESSAGE_TYPES];
+
+export interface MessageRequest<T = any> {
+  cmd: MessageType;
+  data?: T;
+}

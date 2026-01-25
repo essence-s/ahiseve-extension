@@ -1,4 +1,4 @@
-import { MESSAGE_TYPES } from './types';
+import { MESSAGE_TYPES, MessageRequest } from './types/message';
 import { postMessage, sendMessage } from './util';
 
 // envia una señal de instancia de la web
@@ -29,7 +29,7 @@ const messageHandlers = {
     postMessage({ cmd: MESSAGE_TYPES.APP_INSTANCE_LOST_PRIMARY });
     return { status: 'ok' };
   },
-  [MESSAGE_TYPES.ELEMENT_ACTION]: async (request) => {
+  [MESSAGE_TYPES.ELEMENT_ACTION]: async (request: MessageRequest) => {
     if (request.data.status == 'sending') {
       postMessage({
         cmd: request.cmd,
@@ -40,7 +40,7 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  [MESSAGE_TYPES.RESULT_VIDEOS_DATA]: async (request) => {
+  [MESSAGE_TYPES.RESULT_VIDEOS_DATA]: async (request: MessageRequest) => {
     postMessage(request);
     return {
       status: 'ok',
@@ -52,27 +52,30 @@ const messageHandlers = {
 };
 
 const pageMessageHandlers = {
-  [MESSAGE_TYPES.ELEMENT_ACTION]: async (cmd, data) => {
+  [MESSAGE_TYPES.ELEMENT_ACTION]: async ({ cmd, data }: MessageRequest) => {
     if (data.status == 'received') {
       sendMessage({ cmd, data }).catch((e) => {
         console.log(e);
       });
     }
   },
-  [MESSAGE_TYPES.CHECK_ELEMENT_VIDEO_SELECTED]: async (cmd, data) => {
+  [MESSAGE_TYPES.CHECK_ELEMENT_VIDEO_SELECTED]: async ({
+    cmd,
+    data,
+  }: MessageRequest) => {
     const result = await sendMessage({ cmd, data });
     if (!result) return;
     postMessage(result);
   },
-  [MESSAGE_TYPES.GET_TABS]: async (cmd, data) => {
+  [MESSAGE_TYPES.GET_TABS]: async ({ cmd, data }: MessageRequest) => {
     const result = await sendMessage({ cmd, data });
     if (!result) return;
     postMessage(result);
   },
-  [MESSAGE_TYPES.GET_VIDEOS_DATA]: async (cmd, data) => {
+  [MESSAGE_TYPES.GET_VIDEOS_DATA]: async ({ cmd, data }: MessageRequest) => {
     await sendMessage({ cmd, data });
   },
-  [MESSAGE_TYPES.ADD_EVENTS_ELEMENT]: async (cmd, data) => {
+  [MESSAGE_TYPES.ADD_EVENTS_ELEMENT]: async ({ cmd, data }: MessageRequest) => {
     await sendMessage({ cmd, data });
   },
 };
@@ -83,11 +86,10 @@ window.addEventListener(
     const msg = event.data;
     if (event.source != window) return;
     if (msg._isExtMsg) return;
-    let { cmd, data } = msg;
 
-    const handler = await pageMessageHandlers[cmd];
+    const handler = pageMessageHandlers[msg.cmd];
     if (handler) {
-      handler(cmd, data);
+      await handler(msg);
     }
   },
   false
@@ -97,7 +99,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   let handle = messageHandlers[request.cmd];
 
   if (handle) {
-    handle(request, sender)
+    handle(request)
       .then((data) => {
         sendResponse(data);
       })

@@ -1,4 +1,4 @@
-import { MESSAGE_TYPES } from './types';
+import { MESSAGE_TYPES, MessageRequest } from './types/message';
 import { sendMessage } from './util';
 
 // let isApply = false
@@ -7,7 +7,7 @@ function eventQueue() {
   let events = [];
   let executing = false;
 
-  const addEvent = async (event) => {
+  const addEvent = async (event: any) => {
     events.push(event);
     if (!executing) {
       executing = true;
@@ -22,7 +22,7 @@ function eventQueue() {
 
 let queue = eventQueue();
 
-function handlePlay(event) {
+function handlePlay() {
   // console.log(event)
   // setTimeout(() => {
   sendMessage({
@@ -36,7 +36,7 @@ function handlePlay(event) {
   });
   // }, 1000)
 }
-function handlePause(event) {
+function handlePause() {
   // console.log(event)
   // setTimeout(() => {
   sendMessage({
@@ -51,16 +51,18 @@ function handlePause(event) {
   // }, 1000)
 }
 
-function handleSeeking(event) {
+function handleSeeking(event: Event) {
   // console.log(event)
   // if (isApply) return isApply = false
   // setTimeout(() => {
+  const media = event.target as HTMLMediaElement | null;
+  if (!media) return;
   sendMessage({
     cmd: MESSAGE_TYPES.ELEMENT_ACTION,
     data: {
       action: 'seeked',
       status: 'sending',
-      mediaCurrentTime: event.target.currentTime,
+      mediaCurrentTime: media.currentTime,
     },
   }).catch((e) => {
     console.log(e);
@@ -68,24 +70,24 @@ function handleSeeking(event) {
   // }, 3000)
 }
 
-function addEventsElement(element) {
+function addEventsElement(element: HTMLVideoElement) {
   // console.log('in addEven')
   element.addEventListener('play', handlePlay);
   element.addEventListener('pause', handlePause);
   element.addEventListener('seeking', handleSeeking);
 }
 
-function removeEventsElement(element) {
+function removeEventsElement(element: HTMLVideoElement) {
   element.removeEventListener('seeking', handleSeeking);
   element.removeEventListener('play', handlePlay);
   element.removeEventListener('pause', handlePause);
 }
 
 function notGenerateEvent(
-  targetElement,
-  eventElement,
-  functionElement,
-  callback
+  targetElement: any,
+  eventElement: any,
+  functionElement: any,
+  callback: any
 ) {
   return new Promise((resolve) => {
     if (eventElement == 'pause' && targetElement.paused == true)
@@ -120,15 +122,16 @@ function generarID() {
   return idGenerado;
 }
 
-function obtenerImagenPrevia(videoun) {
+function obtenerImagenPrevia(videoun: HTMLVideoElement) {
   try {
     videoun.crossOrigin = 'anonymous';
     let canvas = document.createElement('canvas');
     canvas.width = 100;
     canvas.height = 56;
-    canvas
-      .getContext('2d')
-      .drawImage(videoun, 0, 0, canvas.width, canvas.height);
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return undefined;
+    ctx.drawImage(videoun, 0, 0, canvas.width, canvas.height);
     let previewImage = canvas.toDataURL('image/png');
     return previewImage;
   } catch (e) {
@@ -136,7 +139,14 @@ function obtenerImagenPrevia(videoun) {
   }
 }
 
-let foundVideos = [];
+type foundVideoType = {
+  number: string;
+  img: string | undefined;
+  element: HTMLVideoElement;
+  duration: number;
+};
+
+let foundVideos: foundVideoType[] = [];
 function getVideosPage() {
   let videos = document.querySelectorAll('video');
   const arrayvideos = Array.from(videos).map((videoun, i) => {
@@ -161,7 +171,7 @@ function getVideosPage() {
 }
 
 const messageHandlers = {
-  [MESSAGE_TYPES.ELEMENT_ACTION]: async (request) => {
+  [MESSAGE_TYPES.ELEMENT_ACTION]: async (request: MessageRequest) => {
     if (request.data.status == 'received') {
       // console.log('recived ult 567', request)
       let foundElementVideo = foundVideos.find(
@@ -210,7 +220,7 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  [MESSAGE_TYPES.GET_VIDEOS_DATA]: async (request, sender) => {
+  [MESSAGE_TYPES.GET_VIDEOS_DATA]: async (request: MessageRequest) => {
     // getdataPrueba()
     let dataImageVideos = getVideosPage();
     // console.log(dataImageVideos);
@@ -224,7 +234,7 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  [MESSAGE_TYPES.ADD_EVENTS_ELEMENT]: async (request) => {
+  [MESSAGE_TYPES.ADD_EVENTS_ELEMENT]: async (request: MessageRequest) => {
     // console.log('founVi', foundVideos)
     let foundElementVideo = foundVideos.find(
       (d) => d.number == request.data.number
@@ -237,7 +247,7 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  [MESSAGE_TYPES.REMOVE_EVENTS_ELEMENTS]: async (request) => {
+  [MESSAGE_TYPES.REMOVE_EVENTS_ELEMENTS]: async (request: MessageRequest) => {
     let foundElementVideo = foundVideos.find(
       (d) => d.number == request.data.number
     );
@@ -249,7 +259,7 @@ const messageHandlers = {
       status: 'ok',
     };
   },
-  [MESSAGE_TYPES.CHECK_CONNECTION]: () => {
+  [MESSAGE_TYPES.CHECK_CONNECTION]: async () => {
     return { message: 'connected' };
   },
 };
@@ -258,7 +268,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   let handle = messageHandlers[request.cmd];
 
   if (handle) {
-    handle(request, sender)
+    handle(request)
       .then((data) => {
         sendResponse(data);
       })

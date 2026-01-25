@@ -1,19 +1,26 @@
-import { MESSAGE_TYPES } from './types';
+import { MESSAGE_TYPES } from './types/message';
 import { getTabs, getVideosData, sendMessageTab } from './util';
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('installed');
 });
 
-let mainAppTabId = null;
-let dataG = {};
+type dataGType = {
+  img: string;
+  tabId: number;
+  number: string;
+  favIconUrl: string;
+} | null;
+
+let mainAppTabId: number | null = null;
+let dataG: dataGType = null;
 
 function comprobarData() {
   return new Promise((resolve) => {
-    if (Object.keys(dataG).length == 0) {
+    if (dataG && Object.keys(dataG).length == 0) {
       chrome.storage.local.get(['dataG'], function (result) {
         if (result.dataG) {
-          dataG = JSON.parse(result.dataG);
+          dataG = JSON.parse(result.dataG as string);
         }
 
         resolve('');
@@ -24,19 +31,23 @@ function comprobarData() {
   });
 }
 
-const storeDataGStorage = (data) => {
+const storeDataGStorage = (data: any) => {
   chrome.storage.local.set({ dataG: JSON.stringify(data) }, function () {
     console.log('Datos almacenados en el localStorage del background:');
   });
 };
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   comprobarData().then(async () => {
     // console.log(request);
     // console.log(sender);
     if (request.cmd == MESSAGE_TYPES.ELEMENT_ACTION) {
       // console.log('element-action', request)
       if (request.data.status == 'sending') {
+        if (!mainAppTabId) {
+          console.log('mainAppTabId null');
+          return;
+        }
         // enviar al pagina principal
         sendMessageTab(mainAppTabId, {
           cmd: request.cmd,
@@ -44,8 +55,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         });
       } else {
         // console.log(dataG)
+        if (!dataG) {
+          console.log('no hay elemento seleccionado');
+          return;
+        }
         // enviar a la pagina y videoElement Selecionado
-        sendMessageTab(parseInt(dataG.tabId), {
+        sendMessageTab(dataG.tabId, {
           cmd: request.cmd,
           data: {
             ...request.data,
@@ -56,6 +71,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     } else if (request.cmd == MESSAGE_TYPES.CHECK_ELEMENT_VIDEO_SELECTED) {
       let sendData = { selected: false };
 
+      if (!dataG) {
+        console.log('no hay elemento seleccionado');
+        return;
+      }
       if (Object.keys(dataG).length != 0) sendData = { selected: true };
 
       sendResponse({
@@ -74,7 +93,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     } else if (request.cmd == MESSAGE_TYPES.GET_VIDEOS_DATA) {
       getVideosData(request.data.tabId, {
         ...request,
-        myTabId: sender.tab.id,
+        myTabId: sender.tab?.id,
       });
     } else if (request.cmd == MESSAGE_TYPES.RESULT_VIDEOS_DATA) {
       sendMessageTab(request.myTabId, {
@@ -89,9 +108,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       const img = request.data.img;
       const favIconUrl = request.data.favIconUrl;
 
-      if (dataG.tabId) {
+      if (dataG && dataG.tabId) {
         try {
-          const resultMessageTab = await sendMessageTab(parseInt(dataG.tabId), {
+          const resultMessageTab: any = await sendMessageTab(dataG.tabId, {
             cmd: MESSAGE_TYPES.REMOVE_EVENTS_ELEMENTS,
             data: { number: dataG.number },
           });
