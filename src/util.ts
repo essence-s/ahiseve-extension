@@ -12,9 +12,13 @@ export const sendMessage = (message: any) => {
   });
 };
 
-export const sendMessageTab = (tabId: number, message: any) => {
+export const sendMessageTab = (
+  tabId: number,
+  message: any,
+  options?: chrome.tabs.MessageSendOptions
+) => {
   return new Promise((resolve, reject) => {
-    chrome.tabs.sendMessage(Number(tabId), message, (response) => {
+    chrome.tabs.sendMessage(Number(tabId), message, options, (response) => {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError.message);
       } else {
