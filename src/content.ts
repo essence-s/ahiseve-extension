@@ -262,6 +262,29 @@ const messageHandlers = {
   [MESSAGE_TYPES.CHECK_CONNECTION]: async () => {
     return { message: 'connected' };
   },
+  [MESSAGE_TYPES.GET_VIDEO_INFO]: async (request: MessageRequest) => {
+    const foundVideo = foundVideos.find((d) => d.number == request.data.number);
+    if (foundVideo) {
+      const data = {
+        number: foundVideo.number,
+        currentTime: foundVideo.element.currentTime,
+        duration: foundVideo.element.duration,
+        paused: foundVideo.element.paused,
+        playbackRate: foundVideo.element.playbackRate,
+        volume: foundVideo.element.volume,
+        muted: foundVideo.element.muted,
+        ended: foundVideo.element.ended,
+      };
+
+      return {
+        cmd: MESSAGE_TYPES.RESULT_VIDEO_INFO,
+        data,
+      };
+    }
+    return {
+      status: 'ok',
+    };
+  },
 };
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {

@@ -78,6 +78,10 @@ const pageMessageHandlers = {
   [MESSAGE_TYPES.ADD_EVENTS_ELEMENT]: async ({ cmd, data }: MessageRequest) => {
     await sendMessage({ cmd, data });
   },
+  [MESSAGE_TYPES.GET_VIDEO_INFO]: async ({ cmd, data }: MessageRequest) => {
+    const result = await sendMessage({ cmd, data });
+    postMessage(result);
+  },
 };
 
 window.addEventListener(
@@ -89,7 +93,11 @@ window.addEventListener(
 
     const handler = pageMessageHandlers[msg.cmd];
     if (handler) {
-      await handler(msg);
+      try {
+        await handler(msg);
+      } catch (error) {
+        console.log(error);
+      }
     }
   },
   false

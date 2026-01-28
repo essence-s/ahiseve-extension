@@ -160,6 +160,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           cmd: MESSAGE_TYPES.APP_INSTANCE_NOW_PRIMARY,
         }).catch(() => {});
       }
+    } else if (request.cmd === MESSAGE_TYPES.GET_VIDEO_INFO) {
+      try {
+        // console.log('dataG', dataG);
+        if (!dataG) {
+          console.log('no hay elemento seleccionado');
+          return;
+        }
+        sendResponse(
+          await sendMessageTab(
+            dataG.tabId,
+            {
+              ...request,
+              data: { number: dataG.number },
+            },
+            { frameId: dataG.frameId }
+          )
+        );
+      } catch (error) {
+        console.log(error);
+      }
     }
     sendResponse({ data: 'no se encontro coincidencia' });
   });
