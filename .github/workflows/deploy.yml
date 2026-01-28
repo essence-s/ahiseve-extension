@@ -31,6 +31,10 @@ jobs:
           pnpm install
           pnpm run build
 
+      - name: Copy README to build folder
+        run: |
+          cp README.md dist/README.md
+
       - name: Deploy
         uses: s0/git-publish-subdir-action@develop
         env:
