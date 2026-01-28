@@ -1,4 +1,5 @@
-# Video element selection extension
+# Ahiseve Extension
 
 ## Description
-✨ Extension(Beta) para seleccionar un MediaElement del DOM y controlarlo ✨
+
+✨ Extension(Beta) permite a la web **Ahiseve** interactuar con un MediaElement(video) de otras paginas ✨
