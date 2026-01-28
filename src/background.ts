@@ -10,6 +10,7 @@ type dataGType = {
   tabId: number;
   number: string;
   favIconUrl: string;
+  frameId: number;
 } | null;
 
 let mainAppTabId: number | null = null;
@@ -96,17 +97,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         myTabId: sender.tab?.id,
       });
     } else if (request.cmd == MESSAGE_TYPES.RESULT_VIDEOS_DATA) {
+      const dataWithFrameId = request.data.map((item: any) => ({
+        ...item,
+        frameId: sender.frameId,
+      }));
+
       sendMessageTab(request.myTabId, {
         ...request,
         cmd: MESSAGE_TYPES.RESULT_VIDEOS_DATA,
-        // type: 'RESPONSE',
-        data: request.data,
+        data: dataWithFrameId,
       });
     } else if (request.cmd == MESSAGE_TYPES.ADD_EVENTS_ELEMENT) {
       const tabId = request.data.tabId;
       const number = request.data.number;
       const img = request.data.img;
       const favIconUrl = request.data.favIconUrl;
+      const frameId = request.data.frameId;
 
       if (dataG && dataG.tabId) {
         try {
@@ -132,6 +138,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         tabId,
         number,
         favIconUrl,
+        frameId,
       };
 
       storeDataGStorage(dataG);
