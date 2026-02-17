@@ -1,3 +1,5 @@
+import { MessageRequest } from './types/message';
+
 declare const browser: any;
 
 export const sendMessage = (message: any) => {
@@ -14,7 +16,7 @@ export const sendMessage = (message: any) => {
 
 export const sendMessageTab = (
   tabId: number,
-  message: any,
+  message: MessageRequest,
   options?: chrome.tabs.MessageSendOptions
 ) => {
   return new Promise((resolve, reject) => {
@@ -92,36 +94,46 @@ export const getTabs = () => {
 export const getVideosData = (tabId: number, msg: any) => {
   //   console.log(tabId, 'tabid');
   return new Promise((resolve, reject) => {
-    sendMessageTab(tabId, msg)
-      .then((response) => {
-        console.log('Mensaje enviado:', response);
-        resolve(response);
-      })
-      .catch((error) => {
-        console.log('Error al enviar mensaje:', error);
-
-        const sx =
-          typeof browser !== 'undefined' ? browser.scripting : chrome.scripting;
-
-        sx.executeScript({
-          target: {
-            tabId: Number(tabId),
-            allFrames: true,
-          },
-          files: ['content.js'],
-        }).then(() => {
-          console.log('script execute');
-
-          sendMessageTab(tabId, msg)
-            .then((response) => {
-              console.log('Mensaje enviado:', response);
-              resolve(response);
+    const sx = typeof browser !== 'undefined' ? browser : chrome;
+    sx.webNavigation.getAllFrames({ tabId }, (frames) => {
+      frames?.forEach((frame) => {
+        const addScriptGetVideosData = () => {
+          sx.scripting
+            .executeScript({
+              target: {
+                tabId: Number(tabId),
+                frameIds: [frame.frameId],
+                // allFrames: true,
+              },
+              files: ['content.js'],
             })
-            .catch((err) => {
-              console.log('Error al enviar mensaje 2:', err);
-              reject(err);
+            .then(() => {
+              console.log('script execute');
+
+              sendMessageTab(tabId, msg, { frameId: frame.frameId })
+                .then((response) => {
+                  console.log('Mensaje enviado:', response);
+                  resolve(response);
+                })
+                .catch((err) => {
+                  console.log('Error al enviar mensaje 2:', err);
+                  reject(err);
+                });
             });
-        });
+        };
+        sendMessageTab(tabId, msg, { frameId: frame.frameId })
+          .then((response: any) => {
+            if (response) {
+              resolve(response);
+            } else {
+              addScriptGetVideosData();
+            }
+          })
+          .catch((error) => {
+            console.log('Error al enviar mensaje:', error);
+            addScriptGetVideosData();
+          });
       });
+    });
   });
 };

@@ -72,15 +72,21 @@ const pageMessageHandlers = {
     if (!result) return;
     postMessage(result);
   },
-  [MESSAGE_TYPES.GET_VIDEOS_DATA]: async ({ cmd, data }: MessageRequest) => {
-    await sendMessage({ cmd, data });
-  },
+  // [MESSAGE_TYPES.GET_VIDEOS_DATA]: async ({ cmd, data }: MessageRequest) => {
+  //   await sendMessage({ cmd, data });
+  // },
   [MESSAGE_TYPES.ADD_EVENTS_ELEMENT]: async ({ cmd, data }: MessageRequest) => {
     await sendMessage({ cmd, data });
   },
   [MESSAGE_TYPES.GET_VIDEO_INFO]: async ({ cmd, data }: MessageRequest) => {
     const result = await sendMessage({ cmd, data });
     postMessage(result);
+  },
+  [MESSAGE_TYPES.DISPLAY_VIDEOS_ON_SELECTED_PAGE]: async ({
+    cmd,
+    data,
+  }: MessageRequest) => {
+    await sendMessage({ cmd, data });
   },
 };
 
@@ -117,7 +123,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
     return true;
   }
-  sendResponse({ error: 'no existe tal accion' });
+  // sendResponse({ error: 'no existe tal accion' });
+  return false;
 });
 
 console.log('ahiseve app');

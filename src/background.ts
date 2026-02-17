@@ -16,6 +16,12 @@ type dataGType = {
 let mainAppTabId: number | null = null;
 let dataG: dataGType = null;
 
+type TempSelectedTabValues = {
+  tabId: number;
+  favIconUrl: string;
+} | null;
+let tempSelectedTabValues: TempSelectedTabValues = null;
+
 function comprobarData() {
   return new Promise((resolve) => {
     if (dataG && Object.keys(dataG).length == 0) {
@@ -92,26 +98,32 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         data: tabs,
       });
     } else if (request.cmd == MESSAGE_TYPES.GET_VIDEOS_DATA) {
-      getVideosData(request.data.tabId, {
+      if (!sender.tab?.id) return;
+      getVideosData(sender.tab?.id, {
         ...request,
         myTabId: sender.tab?.id,
       });
+      // getVideosData(request.data.tabId, {
+      //   ...request,
+      //   myTabId: sender.tab?.id,
+      // });
     } else if (request.cmd == MESSAGE_TYPES.RESULT_VIDEOS_DATA) {
-      const dataWithFrameId = request.data.map((item: any) => ({
+      const videosWithFrameId = request.data.videos.map((item: any) => ({
         ...item,
         frameId: sender.frameId,
       }));
+      if (!sender.tab?.id) return;
 
-      sendMessageTab(request.myTabId, {
-        ...request,
-        cmd: MESSAGE_TYPES.RESULT_VIDEOS_DATA,
-        data: dataWithFrameId,
-      });
+      request.data.videos = videosWithFrameId;
+
+      sendMessageTab(sender.tab?.id, request, { frameId: 0 });
     } else if (request.cmd == MESSAGE_TYPES.ADD_EVENTS_ELEMENT) {
-      const tabId = request.data.tabId;
+      if (!tempSelectedTabValues) return console.log('faltan favIconUrl tabId');
+      const tabId = tempSelectedTabValues?.tabId;
+      const favIconUrl = tempSelectedTabValues?.favIconUrl;
+
       const number = request.data.number;
       const img = request.data.img;
-      const favIconUrl = request.data.favIconUrl;
       const frameId = request.data.frameId;
 
       if (dataG && dataG.tabId) {
@@ -162,7 +174,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
     } else if (request.cmd === MESSAGE_TYPES.GET_VIDEO_INFO) {
       try {
-        // console.log('dataG', dataG);
         if (!dataG) {
           console.log('no hay elemento seleccionado');
           return;
@@ -180,8 +191,58 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       } catch (error) {
         console.log(error);
       }
+    } else if (request.cmd === MESSAGE_TYPES.DISPLAY_VIDEOS_ON_SELECTED_PAGE) {
+      const tabId = request.data.tabId;
+      const favIconUrl = request.data.favIconUrl;
+
+      tempSelectedTabValues = {
+        tabId,
+        favIconUrl,
+      };
+
+      const scriptUI = (tabId: number) => {
+        const sx =
+          typeof browser !== 'undefined' ? browser.scripting : chrome.scripting;
+
+        sendMessageTab(
+          tabId,
+          { cmd: MESSAGE_TYPES.CHECK_CONNECTION_UI },
+          { frameId: 0 }
+        )
+          .then((response) => {
+            console.log('Respuesta del mensaje check connection:', response);
+          })
+          .catch((error) => {
+            console.log('Error al enviar mensaje check connection:', error);
+            sx.executeScript({
+              target: { tabId: tabId },
+              files: ['ui/select-video.js'],
+            }).then(() => {
+              console.log('script execute modal.js');
+            });
+          });
+      };
+
+      chrome.tabs.update(tabId, { active: true }, () => {
+        chrome.tabs.get(tabId, (tab) => {
+          // Si está completamente cargada
+          if (tab.status === 'complete') {
+            scriptUI(tabId);
+          } else {
+            chrome.tabs.onUpdated.addListener(
+              function listener(updatedTabId, info) {
+                if (updatedTabId === tabId && info.status === 'complete') {
+                  chrome.tabs.onUpdated.removeListener(listener);
+                  scriptUI(tabId);
+                }
+              }
+            );
+          }
+        });
+      });
     }
-    sendResponse({ data: 'no se encontro coincidencia' });
+    // sendResponse({ data: 'no se encontro coincidencia' });
+    return false;
   });
   return true;
 });

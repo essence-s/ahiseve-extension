@@ -149,26 +149,35 @@ type foundVideoType = {
 let foundVideos: foundVideoType[] = [];
 function getVideosPage() {
   let videos = document.querySelectorAll('video');
-  const arrayvideos = Array.from(videos).map((videoun, i) => {
-    let previewImage = obtenerImagenPrevia(videoun);
 
-    return {
-      number: generarID(),
-      img: previewImage,
-      element: videoun,
-      duration: videoun.duration,
-    };
-  });
+  return Array.from(videos).reduce((acc, video) => {
+    if (video.duration > 0) {
+      let data = {} as foundVideoType;
+      const resultFoundVideo = foundVideos.find((fv) => fv.element === video);
+      if (resultFoundVideo) {
+        data = {
+          number: resultFoundVideo.number,
+          img: obtenerImagenPrevia(video),
+          element: video,
+          duration: video.duration,
+        };
+      } else {
+        data = {
+          number: generarID(),
+          img: obtenerImagenPrevia(video),
+          element: video,
+          duration: video.duration,
+        };
+        foundVideos.push(data);
+      }
 
-  foundVideos = arrayvideos;
-  // console.log(arrayvideos)
-  // lo que realmente envio a ahiseve
-  return arrayvideos.map((v) => ({
-    number: v.number,
-    img: v.img,
-    duration: v.duration,
-  }));
+      acc.push(data);
+    }
+    return acc;
+  }, [] as foundVideoType[]);
 }
+
+const videosPackageID = generarID();
 
 const messageHandlers = {
   [MESSAGE_TYPES.ELEMENT_ACTION]: async (request: MessageRequest) => {
@@ -221,14 +230,17 @@ const messageHandlers = {
     };
   },
   [MESSAGE_TYPES.GET_VIDEOS_DATA]: async (request: MessageRequest) => {
-    // getdataPrueba()
     let dataImageVideos = getVideosPage();
-    // console.log(dataImageVideos);
+    const mapDataImageVideos = dataImageVideos.map((v) => ({
+      number: v.number,
+      img: v.img,
+      duration: v.duration,
+    }));
     // sendResponse(dataImageVideos);
     sendMessage({
       ...request,
       cmd: MESSAGE_TYPES.RESULT_VIDEOS_DATA,
-      data: dataImageVideos,
+      data: { videosPackageID, videos: mapDataImageVideos },
     });
     return {
       status: 'ok',
@@ -301,7 +313,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
     return true;
   }
-  sendResponse({ error: 'no existe tal accion' });
+  // sendResponse({ error: 'no existe tal accion' });
+  return false;
 });
 
 console.log('ahiseve page');
