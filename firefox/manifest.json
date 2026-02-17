@@ -19,7 +19,14 @@
   "icons": {
     "128": "icon128.png"
   },
-  "permissions": ["scripting", "tabs", "storage", "<all_urls>"],
+  "permissions": [
+    "scripting",
+    "tabs",
+    "storage",
+    "activeTab",
+    "webNavigation",
+    "<all_urls>"
+  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "ahiseve@essence-s",
