@@ -1,5 +1,10 @@
 import { MESSAGE_TYPES } from './types/message';
-import { getTabs, getVideosData, sendMessageTab } from './util';
+import {
+  getTabs,
+  getVideosData,
+  InitScriptInAppContent,
+  sendMessageTab,
+} from './util';
 declare const browser: any;
 const sx =
   typeof browser !== 'undefined' ? browser.scripting : chrome.scripting;
@@ -8,8 +13,15 @@ chrome.runtime.onInstalled.addListener(() => {
   console.log('installed');
 });
 
+InitScriptInAppContent([
+  'https://ahiseve.vercel.app/*',
+  'https://ahiseve-git-dev-essence-s-projects.vercel.app/*',
+]);
+
 const EXCLUDE = [
   'https://ahiseve.vercel.app',
+  'http://localhost:4321',
+  'https://k0gd49gv-4322.brs.devtunnels.ms',
   'https://ahiseve-git-dev-essence-s-projects.vercel.app',
 ];
 let isVideoDetectorEnabled = false;

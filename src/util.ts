@@ -1,4 +1,4 @@
-import { MessageRequest } from './types/message';
+import { MESSAGE_TYPES, MessageRequest } from './types/message';
 
 declare const browser: any;
 
@@ -136,4 +136,34 @@ export const getVideosData = (tabId: number, msg: any) => {
       });
     });
   });
+};
+
+export const InitScriptInAppContent = (urls: string[]) => {
+  chrome.tabs.query(
+    {
+      url: urls,
+    },
+    (tabs) => {
+      tabs.forEach((tab) => {
+        const tabId = tab.id;
+        if (!tabId) return;
+        sendMessageTab(tabId, { cmd: MESSAGE_TYPES.CHECK_CONNECTION })
+          .then((response: any) => {
+            if (response.message == 'connected') {
+              console.log(response, 'ya esta conectado');
+            }
+          })
+          .catch((err) => {
+            chrome.scripting
+              .executeScript({
+                target: { tabId: tabId },
+                files: ['app-content.ts'],
+              })
+              .then(() => {
+                console.log('script injected');
+              });
+          });
+      });
+    }
+  );
 };

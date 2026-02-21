@@ -13,7 +13,10 @@
     {
       "run_at": "document_idle",
       "js": ["app-content.js"],
-      "matches": ["https://ahiseve.vercel.app/*"]
+      "matches": [
+        "https://ahiseve.vercel.app/*",
+        "https://ahiseve-git-dev-essence-s-projects.vercel.app/*"
+      ]
     }
   ],
   "icons": {
