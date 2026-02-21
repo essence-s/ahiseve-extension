@@ -1,15 +1,75 @@
 import { MESSAGE_TYPES } from './types/message';
 import { getTabs, getVideosData, sendMessageTab } from './util';
+declare const browser: any;
+const sx =
+  typeof browser !== 'undefined' ? browser.scripting : chrome.scripting;
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('installed');
+});
+
+const EXCLUDE = [
+  'https://ahiseve.vercel.app',
+  'https://ahiseve-git-dev-essence-s-projects.vercel.app',
+];
+let isVideoDetectorEnabled = false;
+const scriptLoadedTabs = new Set<number>();
+
+async function tryInject(tabId: number) {
+  chrome.tabs.get(tabId, async (tab) => {
+    // console.log('tab', tab);
+    // console.log('tab.url', tab.url);
+    if (!tab.url) return;
+
+    if (EXCLUDE.some((domain) => tab.url?.includes(domain))) return;
+    try {
+      const reply: any = await sendMessageTab(
+        tabId,
+        {
+          cmd: MESSAGE_TYPES.CHECK_CONNECTION_UI,
+        },
+        { frameId: 0 }
+      );
+
+      if (reply && reply.status) {
+        // ya existe => no hacemos nada
+        return;
+      }
+    } catch (err) {
+      // no respondió → no existe → inyectar
+    }
+
+    sx.executeScript({
+      target: { tabId: tabId },
+      files: ['ui/select-video.js'],
+    }).then(() => {
+      console.log('script execute modal.js');
+      // funcionalidad de guardado de datos en la pagina injectada para mas adelante
+      // sendMessageTab(tabId, { cmd: MESSAGE_TYPES.SAVE_TAB_INFO ,data:{tabId}});
+      scriptLoadedTabs.add(tabId);
+    });
+  });
+}
+
+// pestaña activa
+chrome.tabs.onActivated.addListener((info) => {
+  if (!isVideoDetectorEnabled) return;
+  tryInject(info.tabId);
+});
+
+// cuando cambia URL
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (!isVideoDetectorEnabled) return;
+  if (changeInfo.status === 'complete') {
+    tryInject(tabId);
+  }
 });
 
 type dataGType = {
   img: string;
   tabId: number;
   number: string;
-  favIconUrl: string;
+  // favIconUrl: string;
   frameId: number;
 } | null;
 
@@ -118,9 +178,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       sendMessageTab(sender.tab?.id, request, { frameId: 0 });
     } else if (request.cmd == MESSAGE_TYPES.ADD_EVENTS_ELEMENT) {
-      if (!tempSelectedTabValues) return console.log('faltan favIconUrl tabId');
-      const tabId = tempSelectedTabValues?.tabId;
-      const favIconUrl = tempSelectedTabValues?.favIconUrl;
+      // if (!tempSelectedTabValues) return console.log('faltan favIconUrl tabId');
+      const tabId = sender.tab?.id;
+      if (!tabId) return console.log('tabId no existe');
+      // const favIconUrl = tempSelectedTabValues?.favIconUrl;
 
       const number = request.data.number;
       const img = request.data.img;
@@ -128,10 +189,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       if (dataG && dataG.tabId) {
         try {
-          const resultMessageTab: any = await sendMessageTab(dataG.tabId, {
-            cmd: MESSAGE_TYPES.REMOVE_EVENTS_ELEMENTS,
-            data: { number: dataG.number },
-          });
+          const resultMessageTab: any = await sendMessageTab(
+            dataG.tabId,
+            {
+              cmd: MESSAGE_TYPES.REMOVE_EVENTS_ELEMENTS,
+              data: { number: dataG.number },
+            },
+            { frameId: dataG.frameId }
+          );
           if (resultMessageTab.status == 'ok') {
             console.log('se removio eventos de seleccion anterior');
           }
@@ -140,18 +205,36 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
       }
 
-      await sendMessageTab(Number(tabId), {
-        cmd: MESSAGE_TYPES.ADD_EVENTS_ELEMENT,
-        data: { number },
-      });
+      await sendMessageTab(
+        Number(tabId),
+        {
+          cmd: MESSAGE_TYPES.ADD_EVENTS_ELEMENT,
+          data: { number },
+        },
+        { frameId: frameId }
+      );
 
       dataG = {
         img,
         tabId,
         number,
-        favIconUrl,
+        // favIconUrl,
         frameId,
       };
+
+      // Mensaje pata los demas scripts para que se oculten
+      isVideoDetectorEnabled = false;
+      scriptLoadedTabs.forEach((tabId) => {
+        sendMessageTab(tabId, {
+          cmd: MESSAGE_TYPES.HIDDEN_UI,
+        });
+      });
+
+      if (!mainAppTabId) return console.log('no existe mainAppTabId');
+      sendMessageTab(mainAppTabId, {
+        cmd: MESSAGE_TYPES.VIDEO_DETECTOR_STATUS,
+        data: false,
+      });
 
       storeDataGStorage(dataG);
     } else if (request.cmd === MESSAGE_TYPES.APP_INSTANCE_ALIVE) {
@@ -201,9 +284,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       };
 
       const scriptUI = (tabId: number) => {
-        const sx =
-          typeof browser !== 'undefined' ? browser.scripting : chrome.scripting;
-
         sendMessageTab(
           tabId,
           { cmd: MESSAGE_TYPES.CHECK_CONNECTION_UI },
@@ -240,7 +320,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           }
         });
       });
+    } else if (request.cmd === MESSAGE_TYPES.ENABLE_VIDEO_DETECTOR) {
+      isVideoDetectorEnabled = true;
+    } else if (request.cmd === MESSAGE_TYPES.DISABLE_VIDEO_DETECTOR) {
+      isVideoDetectorEnabled = false;
+      scriptLoadedTabs.forEach((tabId) => {
+        sendMessageTab(tabId, {
+          cmd: MESSAGE_TYPES.HIDDEN_UI,
+        });
+      });
     }
+
     // sendResponse({ data: 'no se encontro coincidencia' });
     return false;
   });

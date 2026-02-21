@@ -49,6 +49,10 @@ const messageHandlers = {
   [MESSAGE_TYPES.CHECK_CONNECTION]: async () => {
     return { message: 'connected' };
   },
+  [MESSAGE_TYPES.VIDEO_DETECTOR_STATUS]: async (request: MessageRequest) => {
+    postMessage(request);
+    return { status: 'ok' };
+  },
 };
 
 const pageMessageHandlers = {
@@ -87,6 +91,18 @@ const pageMessageHandlers = {
     data,
   }: MessageRequest) => {
     await sendMessage({ cmd, data });
+  },
+  [MESSAGE_TYPES.ENABLE_VIDEO_DETECTOR]: async ({
+    cmd,
+    data,
+  }: MessageRequest) => {
+    sendMessage({ cmd, data });
+  },
+  [MESSAGE_TYPES.DISABLE_VIDEO_DETECTOR]: async ({
+    cmd,
+    data,
+  }: MessageRequest) => {
+    sendMessage({ cmd, data });
   },
 };
 
