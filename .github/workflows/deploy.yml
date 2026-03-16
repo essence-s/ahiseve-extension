@@ -33,7 +33,7 @@ jobs:
 
       - name: Copy README to build folder
         run: |
-          cp README.md dist/README.md
+          cp README.md .output/README.md
 
       - name: Deploy
         uses: s0/git-publish-subdir-action@develop
