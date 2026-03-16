@@ -1,6 +1,8 @@
 import { MESSAGE_TYPES, MessageRequest } from '../types/message';
 import { postMessage, sendMessage } from '../lib/util';
-const APP_CONTENT = JSON.parse(import.meta.env.VITE_APP_CONTENT);
+const APP_CONTENT = JSON.parse(
+  import.meta.env.VITE_APP_CONTENT || '["https://ahiseve.vercel.app/*"]'
+);
 
 export default defineContentScript({
   matches: APP_CONTENT,

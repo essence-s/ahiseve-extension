@@ -5,8 +5,14 @@ import {
   InitScriptInAppContent,
   sendMessageTab,
 } from '../lib/util';
-const APP_CONTENT = JSON.parse(import.meta.env.VITE_APP_CONTENT);
-const EXCLUDE: string[] = JSON.parse(import.meta.env.VITE_EXCLUDE);
+
+const APP_CONTENT = JSON.parse(
+  import.meta.env.VITE_APP_CONTENT || '["https://ahiseve.vercel.app/*"]'
+);
+
+const EXCLUDE: string[] = JSON.parse(
+  import.meta.env.VITE_EXCLUDE || '["https://ahiseve.vercel.app"]'
+);
 
 export default defineBackground(() => {
   browser.runtime.onInstalled.addListener(() => {
