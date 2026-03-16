@@ -1,21 +1,27 @@
 {
   "name": "ahiseve",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Complemento para sincronizar video",
+  "private": true,
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build": "rolldown -c",
-    "dev": "rolldown -c rolldown.config.ts --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare"
   },
-  "author": "",
-  "license": "ISC",
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.1",
+    "preact": "^10.29.0",
+    "tailwindcss": "^4.2.1"
+  },
   "devDependencies": {
-    "@types/chrome": "^0.1.36",
-    "esbuild": "^0.27.2",
-    "rolldown": "1.0.0-rc.1",
-    "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-esbuild": "^6.2.1"
+    "@preact/preset-vite": "^2.10.4",
+    "typescript": "^5.9.3",
+    "wxt": "^0.20.19"
   }
 }

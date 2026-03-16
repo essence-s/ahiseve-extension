@@ -2,4 +2,4 @@
 
 ## Description
 
-✨ Extension(Beta) permite a la web **Ahiseve** interactuar con un MediaElement(video) de otras paginas ✨
+✨ Extension(Beta) para la web **Ahiseve** permite interactuar con un MediaElement(video) de otras paginas ✨

@@ -1,12 +1,10 @@
-import { MESSAGE_TYPES, MessageRequest } from './types/message';
-
-declare const browser: any;
+import { MESSAGE_TYPES, MessageRequest } from '../types/message';
 
 export const sendMessage = (message: any) => {
   return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(message, (response) => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError.message);
+    browser.runtime.sendMessage(message, (response) => {
+      if (browser.runtime.lastError) {
+        reject(browser.runtime.lastError.message);
       } else {
         resolve(response);
       }
@@ -17,12 +15,12 @@ export const sendMessage = (message: any) => {
 export const sendMessageTab = (
   tabId: number,
   message: MessageRequest,
-  options?: chrome.tabs.MessageSendOptions
+  options?: Browser.tabs.MessageSendOptions
 ) => {
   return new Promise((resolve, reject) => {
-    chrome.tabs.sendMessage(Number(tabId), message, options, (response) => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError.message);
+    browser.tabs.sendMessage(Number(tabId), message, options, (response) => {
+      if (browser.runtime.lastError) {
+        reject(browser.runtime.lastError.message);
       } else {
         resolve(response);
       }
@@ -71,7 +69,7 @@ const getIconDataUrl = async (favIconUrl: string | undefined) => {
 export const getTabs = () => {
   return new Promise((resolve, reject) => {
     try {
-      chrome.tabs.query({}, function (tabs) {
+      browser.tabs.query({}, function (tabs) {
         Promise.all(
           tabs.map(async (tab) => {
             const iconDataUrl = await getIconDataUrl(tab.favIconUrl);
@@ -94,18 +92,17 @@ export const getTabs = () => {
 export const getVideosData = (tabId: number, msg: any) => {
   //   console.log(tabId, 'tabid');
   return new Promise((resolve, reject) => {
-    const sx = typeof browser !== 'undefined' ? browser : chrome;
-    sx.webNavigation.getAllFrames({ tabId }, (frames) => {
+    browser.webNavigation.getAllFrames({ tabId }, (frames) => {
       frames?.forEach((frame) => {
         const addScriptGetVideosData = () => {
-          sx.scripting
+          browser.scripting
             .executeScript({
               target: {
                 tabId: Number(tabId),
                 frameIds: [frame.frameId],
                 // allFrames: true,
               },
-              files: ['content.js'],
+              files: ['/content-scripts/content.js'],
             })
             .then(() => {
               console.log('script execute');
@@ -139,7 +136,7 @@ export const getVideosData = (tabId: number, msg: any) => {
 };
 
 export const InitScriptInAppContent = (urls: string[]) => {
-  chrome.tabs.query(
+  browser.tabs.query(
     {
       url: urls,
     },
@@ -154,10 +151,10 @@ export const InitScriptInAppContent = (urls: string[]) => {
             }
           })
           .catch((err) => {
-            chrome.scripting
+            browser.scripting
               .executeScript({
                 target: { tabId: tabId },
-                files: ['app-content.ts'],
+                files: ['/content-scripts/app-content.js'],
               })
               .then(() => {
                 console.log('script injected');
