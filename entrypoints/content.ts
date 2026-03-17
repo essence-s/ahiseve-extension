@@ -6,6 +6,8 @@ export default defineContentScript({
   main() {
     // let isApply = false
 
+    let elementAddEvents: HTMLVideoElement | null = null;
+
     function eventQueue() {
       let events = [];
       let executing = false;
@@ -263,6 +265,7 @@ export default defineContentScript({
         );
         if (foundElementVideo) {
           console.log('addEvents', request);
+          elementAddEvents = foundElementVideo.element;
           addEventsElement(foundElementVideo.element);
         }
         return {
@@ -333,6 +336,15 @@ export default defineContentScript({
       }
     );
 
+    const interval = setInterval(() => {
+      if (!browser.runtime?.id) {
+        clearInterval(interval);
+        // console.log('limpiando eventos');
+        // limpiar todo
+        if (!elementAddEvents) return;
+        removeEventsElement(elementAddEvents);
+      }
+    }, 2000);
     console.log('ahiseve page');
   },
 });

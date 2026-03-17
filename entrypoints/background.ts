@@ -54,7 +54,7 @@ export default defineBackground(() => {
           files: ['/content-scripts/select-video.js'],
         })
         .then(() => {
-          console.log('script execute modal.js');
+          // console.log('script execute modal.js');
           // funcionalidad de guardado de datos en la pagina injectada para mas adelante
           // sendMessageTab(tabId, { cmd: MESSAGE_TYPES.SAVE_TAB_INFO ,data:{tabId}});
           scriptLoadedTabs.add(tabId);

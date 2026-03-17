@@ -125,7 +125,6 @@ export default defineContentScript({
         if (msg._isExtMsg) return;
 
         // evitar ejecutar si el script ya no tiene contexto
-        console.log('runtime browser', browser.runtime?.id);
         if (!browser.runtime?.id) return;
 
         const handler = pageMessageHandlers[msg.cmd];

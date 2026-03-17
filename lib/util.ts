@@ -105,11 +105,11 @@ export const getVideosData = (tabId: number, msg: any) => {
               files: ['/content-scripts/content.js'],
             })
             .then(() => {
-              console.log('script execute');
+              // console.log('script execute', frame.frameId);
 
               sendMessageTab(tabId, msg, { frameId: frame.frameId })
                 .then((response) => {
-                  console.log('Mensaje enviado:', response);
+                  // console.log('Mensaje enviado:', response);
                   resolve(response);
                 })
                 .catch((err) => {
@@ -157,7 +157,7 @@ export const InitScriptInAppContent = (urls: string[]) => {
                 files: ['/content-scripts/app-content.js'],
               })
               .then(() => {
-                console.log('script injected');
+                console.log('script execute app-content');
               });
           });
       });
