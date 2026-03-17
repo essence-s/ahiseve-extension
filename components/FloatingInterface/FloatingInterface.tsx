@@ -63,6 +63,12 @@ export default function FloatingInterface() {
     });
     interval.current = setInterval(() => {
       // console.log('intervalooo');
+      if (!browser.runtime?.id) {
+        setIsVisible(false);
+        cleanInterval();
+        clearTimeout(timerId2.current);
+        return;
+      }
       browser.runtime.sendMessage({
         cmd: MESSAGE_TYPES.GET_VIDEOS_DATA,
       });
@@ -85,6 +91,7 @@ export default function FloatingInterface() {
     // setTimeout(() => {
     //   setVideos(mockVideos);
     // }, 1500);
+    // console.log('ui');
 
     const messageHandlers = {
       [MESSAGE_TYPES.RESULT_VIDEOS_DATA]: async (request: MessageRequest) => {
