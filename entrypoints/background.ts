@@ -1,10 +1,9 @@
-import { MESSAGE_TYPES } from '../types/message';
 import {
-  getTabs,
   getVideosData,
   InitScriptInAppContent,
   sendMessageTab,
 } from '../lib/util';
+import { MESSAGE_TYPES } from '../types/message';
 
 const APP_CONTENT = JSON.parse(
   import.meta.env.VITE_APP_CONTENT || '["https://ahiseve.vercel.app/*"]'
@@ -153,25 +152,12 @@ export default defineBackground(() => {
           cmd: MESSAGE_TYPES.RESULT_CHECK_ELEMENT_VIDEO_SELECTED,
           data: sendData,
         });
-      } else if (request.cmd == MESSAGE_TYPES.GET_TABS) {
-        const tabs = await getTabs();
-
-        sendResponse({
-          ...request,
-          cmd: MESSAGE_TYPES.RESULT_TABS,
-          // type: 'RESPONSE',
-          data: tabs,
-        });
       } else if (request.cmd == MESSAGE_TYPES.GET_VIDEOS_DATA) {
         if (!sender.tab?.id) return;
         getVideosData(sender.tab?.id, {
           ...request,
           myTabId: sender.tab?.id,
         });
-        // getVideosData(request.data.tabId, {
-        //   ...request,
-        //   myTabId: sender.tab?.id,
-        // });
       } else if (request.cmd == MESSAGE_TYPES.RESULT_VIDEOS_DATA) {
         const videosWithFrameId = request.data.videos.map((item: any) => ({
           ...item,

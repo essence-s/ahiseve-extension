@@ -46,12 +46,6 @@ export default defineContentScript({
           status: 'ok',
         };
       },
-      [MESSAGE_TYPES.RESULT_VIDEOS_DATA]: async (request: MessageRequest) => {
-        postMessage(request);
-        return {
-          status: 'ok',
-        };
-      },
       [MESSAGE_TYPES.CHECK_CONNECTION]: async () => {
         return { message: 'connected' };
       },
@@ -79,14 +73,6 @@ export default defineContentScript({
         if (!result) return;
         postMessage(result);
       },
-      [MESSAGE_TYPES.GET_TABS]: async ({ cmd, data }: MessageRequest) => {
-        const result = await sendMessage({ cmd, data });
-        if (!result) return;
-        postMessage(result);
-      },
-      // [MESSAGE_TYPES.GET_VIDEOS_DATA]: async ({ cmd, data }: MessageRequest) => {
-      //   await sendMessage({ cmd, data });
-      // },
       [MESSAGE_TYPES.ADD_EVENTS_ELEMENT]: async ({
         cmd,
         data,

@@ -39,56 +39,6 @@ export const postMessage = (request: any) => {
   );
 };
 
-const iconCache: any = {};
-
-const getIconDataUrl = async (favIconUrl: string | undefined) => {
-  if (!favIconUrl) return '';
-
-  if (iconCache[favIconUrl]) {
-    return iconCache[favIconUrl];
-  }
-
-  try {
-    const res = await fetch(favIconUrl);
-    if (!res.ok) return '';
-
-    const blob = await res.blob();
-    const reader = new FileReader();
-    const dataUrl = await new Promise((resolve) => {
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-
-    iconCache[favIconUrl] = dataUrl;
-    return dataUrl;
-  } catch {
-    return '';
-  }
-};
-
-export const getTabs = () => {
-  return new Promise((resolve, reject) => {
-    try {
-      browser.tabs.query({}, function (tabs) {
-        Promise.all(
-          tabs.map(async (tab) => {
-            const iconDataUrl = await getIconDataUrl(tab.favIconUrl);
-            return {
-              id: tab.id,
-              favIconUrl: iconDataUrl,
-              title: tab.title,
-              url: tab.url,
-            };
-          })
-        ).then((data) => resolve(data));
-      });
-    } catch (e) {
-      console.log(e);
-      reject(e);
-    }
-  });
-};
-
 export const getVideosData = (tabId: number, msg: any) => {
   //   console.log(tabId, 'tabid');
   return new Promise((resolve, reject) => {

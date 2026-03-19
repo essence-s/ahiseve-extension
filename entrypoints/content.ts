@@ -264,7 +264,7 @@ export default defineContentScript({
           (d) => d.number == request.data.number
         );
         if (foundElementVideo) {
-          console.log('addEvents', request);
+          console.log('addEvents');
           elementAddEvents = foundElementVideo.element;
           addEventsElement(foundElementVideo.element);
         }
@@ -279,7 +279,7 @@ export default defineContentScript({
           (d) => d.number == request.data.number
         );
         if (foundElementVideo) {
-          console.log('Remove Events', request);
+          console.log('Remove Events');
           removeEventsElement(foundElementVideo.element);
         }
         return {
