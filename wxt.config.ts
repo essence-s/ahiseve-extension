@@ -6,6 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   // modules: ['@wxt-dev/module-react'],
   manifest: {
+    name: 'Ahiseve Extension',
     permissions: ['tabs', 'scripting', 'webNavigation', 'storage'],
     host_permissions: ['*://*/*'],
   },
