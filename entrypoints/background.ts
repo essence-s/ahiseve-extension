@@ -86,19 +86,32 @@ export default defineBackground(() => {
   let mainAppTabId: number | null = null;
   let dataG: dataGType = null;
 
-  function comprobarData() {
-    return new Promise((resolve) => {
-      if (dataG && Object.keys(dataG).length == 0) {
-        browser.storage.local.get(['dataG'], function (result) {
-          if (result.dataG) {
-            dataG = JSON.parse(result.dataG as string);
-          }
-
-          resolve('');
-        });
-      } else {
-        resolve('');
+  const saveMainAppTabId = (newMainAppTabId: number) => {
+    mainAppTabId = newMainAppTabId;
+    browser.storage.local.set(
+      { mainAppTabId: JSON.stringify(mainAppTabId) },
+      function () {
+        console.log('mainAppTabId save');
       }
+    );
+  };
+
+  function comprobarData() {
+    return new Promise(async (resolve) => {
+      if (dataG && Object.keys(dataG).length == 0) {
+        const resultDataG = await browser.storage.local.get(['dataG']);
+        if (resultDataG.dataG) {
+          dataG = JSON.parse(resultDataG.dataG as string);
+        }
+      }
+      if (!mainAppTabId) {
+        // console.log('se utilizo el almacenamiento mainAppTabId');
+        const result2 = await browser.storage.local.get(['mainAppTabId']);
+        if (result2.mainAppTabId) {
+          mainAppTabId = JSON.parse(result2.mainAppTabId as string);
+        }
+      }
+      resolve('');
     });
   }
 
@@ -237,7 +250,10 @@ export default defineBackground(() => {
           }
 
           // actualiza principal
-          mainAppTabId = newTabId;
+          saveMainAppTabId(newTabId);
+
+          if (!mainAppTabId)
+            return console.log('no existe mainAppTabId APP_INSTANCE_ALIVE');
 
           // avisar la nueva principal
           sendMessageTab(mainAppTabId, {
